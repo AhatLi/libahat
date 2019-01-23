@@ -7,32 +7,23 @@
 
 using namespace std;
 
-bool sub(char* num1, char* num2, char* result);
-char* add(char* num1, char* num2, char* result);
-void division(char* num1, char* num2, int digit, char* result);
-int getNumberLen(char* num);
-int isDecimal(char* num);
-bool isNumber(char* num);
-void mod(char* num1, char* num2, char* result);
-bool sub(char* num1, char* num2, char* result);
-int compareNumber(char* num1, char* num2);
-char* getDecimal(char* num);
-
 class ANumber
 {
 public:
-	ANumber(char* num);
-	ANumber(int num);
-
 	map<int, int> itemlist;
 	bool minus;
 
+	ANumber(char* num);
+	ANumber(int num);
+
 	bool toNum(char* num);
 	bool getHeight(int* max, int* min);
-	char* toChar(char* result);
+	bool toChar(char* result);
 	bool add(ANumber num);
 	bool sub(ANumber num);
+
 	int compareNumber(ANumber num);
+	int compareNumber(int num);
 	
 	ANumber operator+(ANumber item);
 	ANumber operator-(ANumber item);
@@ -41,8 +32,19 @@ public:
 	bool operator>(ANumber item);
 	bool operator>=(ANumber item);
 	bool operator==(ANumber item);
+	
+	ANumber operator+(int item);
+	ANumber operator-(int item);
+	bool operator<(int item);
+	bool operator<=(int item);
+	bool operator>(int item);
+	bool operator>=(int item);
+	bool operator==(int item);
 
 private:
 	bool _add(ANumber *big, ANumber *small, int max);
 	bool _sub(ANumber *big, ANumber *small, int max);
+	int _compareNumber(ANumber num);
+	
+	int _getNumberLen(char* num);
 };

@@ -36,7 +36,7 @@ ANumber::ANumber(int num)
 
 bool ANumber::toNum(char* num)
 {
-	int size = getNumberLen(num);
+	int size = _getNumberLen(num);
 	this->minus = false;
 
 	int n = 0;
@@ -71,7 +71,7 @@ bool ANumber::toNum(char* num)
 	return true;
 }
 
-char* ANumber::toChar(char* result)
+bool ANumber::toChar(char* result)
 {
 	int max = 0;
 	int min = 0;
@@ -113,7 +113,7 @@ char* ANumber::toChar(char* result)
 		}
 	}
 
-	return result;
+	return true;
 }
 
 bool ANumber::getHeight(int* max, int* min)
@@ -136,7 +136,6 @@ bool ANumber::getHeight(int* max, int* min)
 ANumber ANumber::operator+(ANumber item)
 {
 	ANumber buf(*this);
-
 	buf.add(item);
 
 	return buf;
@@ -145,7 +144,6 @@ ANumber ANumber::operator+(ANumber item)
 ANumber ANumber::operator-(ANumber item)
 {
 	ANumber buf(*this);
-
 	buf.sub(item);
 
 	return buf;
@@ -178,7 +176,42 @@ bool ANumber::operator==(ANumber item)
 	return compareNumber(item) == 0;
 }
 
-int ANumber::compareNumber(ANumber num)
+ANumber ANumber::operator+(int item)
+{
+	return *this + ANumber(item);
+}
+
+ANumber ANumber::operator-(int item)
+{
+	return *this - ANumber(item);
+}
+
+bool ANumber::operator<(int item)
+{
+	return *this < ANumber(item);
+}
+
+bool ANumber::operator<=(int item)
+{
+	return *this <= ANumber(item);
+}
+
+bool ANumber::operator>(int item)
+{
+	return *this > ANumber(item);
+}
+
+bool ANumber::operator>=(int item)
+{
+	return *this >= ANumber(item);
+}
+
+bool ANumber::operator==(int item)
+{
+	return *this == ANumber(item);
+}
+
+int ANumber::_compareNumber(ANumber num)
 {
 	int size1 = 0;
 	int size2 = 0;
@@ -213,6 +246,24 @@ int ANumber::compareNumber(ANumber num)
 	return 0;
 }
 
+int ANumber::compareNumber(ANumber num)
+{
+	if(this->minus && num.minus)
+	{
+		return !_compareNumber(num);
+	}
+	else if(!this->minus && num.minus)
+	{
+		return -1;
+	}
+	else if(!this->minus && num.minus)
+	{
+		return 1;
+	}
+
+	return _compareNumber(num);
+}
+
 bool ANumber::add(ANumber num)
 {
 	int max = 0;
@@ -236,8 +287,8 @@ bool ANumber::add(ANumber num)
 	}
 	else
 	{
-		this->toNum("0");
-		return true;
+		big = this;
+		small = &num;
 	}
 
 	getHeight(&max, &min);
@@ -280,6 +331,8 @@ bool ANumber::sub(ANumber num)
 
 	ANumber* big;
 	ANumber* small;
+	bool process = false;
+
 	if(tmp == 1)
 	{
 		big = this;
@@ -289,6 +342,7 @@ bool ANumber::sub(ANumber num)
 	{
 		big = &num;
 		small = this;
+		process = true;
 	}
 	else
 	{
@@ -322,6 +376,11 @@ bool ANumber::sub(ANumber num)
 			this->_sub(big, small, max);
 		}
 		this->minus = true;
+	}
+
+	if(process)
+	{
+		this->minus = !this->minus;
 	}
 
 	return true;
@@ -395,192 +454,7 @@ bool ANumber::_sub(ANumber *big, ANumber *small, int max)
 	return true;
 }
 
-
-
-/*
-bool sub(char* num1, char* num2, char* result)
-{
-	int size1 = strlen(num1);
-	int size2 = strlen(num2);
-	int max = size1 > size2 ? size1 : size2;
-	bool minus = false;
-	int count = 0;
-
-	char *data1, *data2;
-
-	if(size1 < size2)
-	{
-		minus = true;
-	}
-	else if(size1 == size2)
-	{
-		for(int i = 0; i < size1; i++)
-		{
-			if(num1[i] < num2[i])
-			{
-				minus = true;
-				break;
-			}
-		}
-	}
-
-	if(minus == false)
-	{
-		data1 = num1;
-		data2 = num2;
-	}
-	else
-	{
-		data1 = num2;
-		data2 = num1;
-
-		int c = size2;
-		size2 = size1;
-		size1 = c;
-	}
-
-	for(int i = 0; i < max; i++)
-	{
-		char n1 = 0;
-		char n2 = 0;
-		int r = 0;
-		
-		if(size1 - max + i >= 0)
-		{
-			n1 = data1[size1 - max + i] - 48;
-		}
-		if(size2 - max + i >= 0)
-		{
-			n2 = data2[size2 - max + i] - 48;
-		}
-
-		if(n1 < n2)
-		{
-			r = n1 - n2 + 10;
-			int c = i-1;
-
-			while(1)
-			{
-				if(result[c] == '0')
-				{
-					result[c] = '9';
-				}
-				else
-				{
-					result[c] = result[c] - 1;
-					break;
-				}
-				c--;
-			}
-		}
-		else
-		{
-			r = n1 - n2;
-		}
-
-		result[count++] = r + 48;
-	}
-
-	result[count] = '\0';
-
-	count = 0;
-	while(1)
-	{
-		if(result[count] == '0')
-		{
-			count++;
-		}
-		else
-		{
-			break;
-		}
-	}
-
-	if(count != 0)
-	{
-		int size = strlen(result) - count + 1;
-		for(int i = 0; i < size; i++)
-		{
-			result[i] = result[i + count];
-		}
-	}
-
-	return !minus;
-}
-
-char* add(char* num1, char* num2, char* result)
-{
-	int carry = 0;
-	int count = 0;
-	int size1 = strlen(num1);
-	int size2 = strlen(num2);
-
-	char buf[MAX+1] = {0, };
-	int max = size1 > size2 ? size1 : size2;
-
-	for(int i = 0; i < max; i++)
-	{
-		char n1 = 0;
-		char n2 = 0;
-		char n3 = carry;
-
-		if(size1 - i - 1 >= 0)
-		{
-			n1 = num1[size1 - i - 1] - 48;
-		}
-		if(size2 - i - 1 >= 0)
-		{
-			n2 = num2[size2 - i - 1] - 48;
-		}
-
-		buf[count++] = ((n1 + n2 + n3) % 10) + 48;
-		carry = (n1 + n2 + n3) / 10;
-	}
-	if(carry > 0)
-	{
-		buf[count] = carry + 48;
-	}
-
-	max = strlen(buf);
-	for(int i = 0; i < max; i++)
-	{
-		result[i] = buf[max - i - 1];
-	}
-
-	return result;
-}
-
-void division(char* num1, char* num2, int digit, char* result)
-{
-	char re[MAX+1] = {0, };
-
-	int size1 = getNumberLen(num1);
-
-	strcpy_s(result, MAX+1, num1);
-
-	while(sub(num1, num2, re))
-	{
-		strcpy_s(result, MAX+1, re);
-		strcpy_s(num1, MAX+1, re);
-	}
-}
-
-void mod(char* num1, char* num2, char* result)
-{
-	char re[MAX+1] = {0, };
-
-
-
-	strcpy_s(result, MAX+1, num1);
-
-	while(sub(num1, num2, re))
-	{
-		strcpy_s(result, MAX+1, re);
-		strcpy_s(num1, MAX+1, re);
-	}
-}
-
-int getNumberLen(char* num)
+int ANumber::_getNumberLen(char* num)
 {
 	int result = 0;
 	int size = strlen(num);
@@ -597,136 +471,3 @@ int getNumberLen(char* num)
 
 	return result;
 }
-
-int compareNumber(char* num1, char* num2)
-{
-	int size1 = getNumberLen(num1);
-	int size2 = getNumberLen(num2);
-
-	if(size1 > size2)
-	{
-		return 1;
-	}
-	else if(size1 == size2)
-	{
-		for(int i = 0; i < size1; i++)
-		{
-			if(num1[i] < num2[i])
-			{
-				return -1;
-			}
-		}
-
-		if(isDecimal(num1))
-		{
-			if(isDecimal(num2))
-			{
-				char *p1 = getDecimal(num1);
-				char *p2 = getDecimal(num2);
-				int i = 0;
-
-				while(1)
-				{
-					if(!*p1 && *p2)
-					{
-						return -1;
-					}
-					else if(*p1 && !*p2)
-					{
-						return 1;
-					}
-					else if(!*p1 && !*p2)
-					{
-						return 0;
-					}
-
-					if(*p1 < *p2)
-					{
-						return -1;
-					}
-					else if(*p1 > *p2)
-					{
-						return 1;
-					}
-
-					p1++;
-					p2++;
-				}
-			}
-			else
-			{
-				return 1;
-			}
-		}
-
-		return 0;
-	}
-
-	return -1;
-}
-
-char* getDecimal(char* num)
-{
-	for(char* p = num ;p != NULL; p++)
-	{
-		if(*p == '.')
-			return ++p;
-	}
-
-	return NULL;
-}
-
-int isDecimal(char* num)
-{
-	int size = strlen(num);
-	int result = 0;
-
-	for(int i = 0; i < size; i++)
-	{
-		if(num[i] == '.')
-		{
-			if(result == 0)
-			{
-				result = 1;
-			}
-			else
-			{
-				return 2;
-			}
-		}
-		else if(num[i] < 47 || num[i] > 58)
-		{
-			return 2;
-		}
-	}
-
-	return result;
-}
-
-bool isNumber(char* num)
-{
-	int size = strlen(num);
-	bool decimal = false;
-
-	for(int i = 0; i < size; i++)
-	{
-		if(num[i] == '.')
-		{
-			if(decimal == false)
-			{
-				decimal = true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-		else if(num[i] < 47 || num[i] > 58)
-		{
-			return false;
-		}
-	}
-
-	return true;
-}
-*/
