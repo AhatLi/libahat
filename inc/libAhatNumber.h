@@ -1,5 +1,6 @@
 #include <iostream>
 #include <map>
+#include <string.h>
 
 #define MAX 16384
 
@@ -13,12 +14,13 @@ public:
 	map<int, int> itemlist;
 	bool minus;
 
-	ANumber(char* num);
+	ANumber(const char* num);
 	ANumber(int num);
 
-	bool toNum(char* num);
+	bool toNum(const char* num);
 	bool getHeight(int* max, int* min);
 	bool toChar(char* result);
+	std::string toStr();
 	bool add(ANumber num);
 	bool sub(ANumber num);
 
@@ -46,5 +48,5 @@ private:
 	bool _sub(ANumber *big, ANumber *small, int max);
 	int _compareNumber(ANumber num);
 	
-	int _getNumberLen(char* num);
+	int _getNumberLen(const char* num);
 };

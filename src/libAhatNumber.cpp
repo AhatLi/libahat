@@ -1,7 +1,7 @@
 #include "libAhatNumber.h"
 
 
-ANumber::ANumber(char* num)
+ANumber::ANumber(const char* num)
 {
 	toNum(num);
 }
@@ -34,7 +34,7 @@ ANumber::ANumber(int num)
 	}
 }
 
-bool ANumber::toNum(char* num)
+bool ANumber::toNum(const char* num)
 {
 	int size = _getNumberLen(num);
 	this->minus = false;
@@ -96,8 +96,7 @@ bool ANumber::toChar(char* result)
 
 	for(int i = max-1; i >= min; i--)
 	{		
-		value = this->itemlist[i];
-		if(this->itemlist[i] == NULL)
+		if(this->itemlist.find(i) == this->itemlist.end())
 		{
 			for(int i = 0; i < 7; i++)
 			{
@@ -106,6 +105,7 @@ bool ANumber::toChar(char* result)
 		}
 		else
 		{
+			value = this->itemlist[i];
 			for(int i = MAX_NUMBER/10; i != 0; i/=10)
 			{
 				result[c++] = ((value / i) % 10) + 48;
@@ -114,6 +114,19 @@ bool ANumber::toChar(char* result)
 	}
 
 	return true;
+}
+
+std::string ANumber::toStr()
+{
+	char buf[1024];
+	memset(buf, 0, 1024);
+
+	if(!toChar(buf))
+	{
+		return std::string();
+	}
+
+	return std::string(buf);
 }
 
 bool ANumber::getHeight(int* max, int* min)
@@ -386,7 +399,7 @@ bool ANumber::sub(ANumber num)
 	return true;
 }
 
-//ÀÚ±âÀÚ½Å(Å«¼ö)¿¡¼­ ÀÛÀº¼ö¸¦ ´õÇÏ´Â ÇÔ¼ö 
+//ìê¸°ìì‹ (í°ìˆ˜)ì—ì„œ ì‘ì€ìˆ˜ë¥¼ ë”í•˜ëŠ” í•¨ìˆ˜ 
 bool ANumber::_add(ANumber *big, ANumber *small, int max)
 {
 	int carry = 0;
@@ -420,7 +433,7 @@ bool ANumber::_add(ANumber *big, ANumber *small, int max)
 	return true;
 }
 
-//ÀÚ±âÀÚ½Å(Å«¼ö)¿¡¼­ ÀÛÀº¼ö¸¦ »©´Â ÇÔ¼ö 
+//ìê¸°ìì‹ (í°ìˆ˜)ì—ì„œ ì‘ì€ìˆ˜ë¥¼ ë¹¼ëŠ” í•¨ìˆ˜ 
 bool ANumber::_sub(ANumber *big, ANumber *small, int max)
 {
 	int carry = 0;
@@ -454,7 +467,7 @@ bool ANumber::_sub(ANumber *big, ANumber *small, int max)
 	return true;
 }
 
-int ANumber::_getNumberLen(char* num)
+int ANumber::_getNumberLen(const char* num)
 {
 	int result = 0;
 	int size = strlen(num);
